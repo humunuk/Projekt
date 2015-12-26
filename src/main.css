@@ -1,0 +1,6 @@
+.toggle-button {
+    -fx-base: white;
+}
+.toggle-button:selected {
+    -fx-base: black;
+}

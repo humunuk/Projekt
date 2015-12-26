@@ -2,17 +2,16 @@
  * Created by skallari on 31.10.15.
  */
 
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 
 
-public class StartUpWindow {
+public class StartUpView {
 
     private VBox buttonPlacement;
     private Scene scene;
@@ -21,7 +20,7 @@ public class StartUpWindow {
     private String title = "Alusta planeerimist";
     private Stage stage;
 
-    public StartUpWindow(Stage primaryStage) {
+    public StartUpView(Stage primaryStage) {
 
         buttonPlacement = new VBox();
         scene = new Scene(buttonPlacement, 500, 600);
@@ -46,7 +45,7 @@ public class StartUpWindow {
         chooseNewPlan.setPrefSize(200, 50);
 
         chooseNewPlan.setOnAction(event -> {
-                    new PlanningWindow();
+                    new PlanningView();
                     stage.close();
                 }
         );
