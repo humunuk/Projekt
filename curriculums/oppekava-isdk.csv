@@ -1,0 +1,59 @@
+null,I008,Isd-k,IT sotsiaalsed eetilised ja professionaalsed aspektid,4,autumn,1,1
+null,I101,Isd-k,Matemaatiline analüüs,4,autumn,1,1
+null,I200,Isd-k,Programmeerimise algkursus Java baasil,6,autumn,1,1
+null,I016,Isd-k,Filosoofia,3,autumn,1,1
+null,I111,Isd-k,Sissejuhatus informaatikasse,3,autumn,1,1
+null,I020,Isd-k,Õpingukorraldus ja erialatutvustus,2,autumn,1,1
+null,I012,Isd-k,Inglise keele grammatika,3,autumn,1,2
+null,I308,Isd-k,Arvutigraafika,5,autumn,1,2
+null,I014,Isd-k,Sissejuhatus infotöötlusesse,3,autumn,1,2
+null,I018,Isd-k,Matemaatika tasanduskursus,2,autumn,1,2
+null,I201,Isd-k,Arvutid,4,spring,1,1
+null,I102,Isd-k,Füüsika,4,spring,1,1
+null,I104,Isd-k,Tõenäosusteooria ja matemaatiline statistika,4,spring,1,1
+null,I015,Isd-k,Makroökonoomika,4,spring,1,1
+null,I244,Isd-k,Võrgurakendused I: klient-server süsteemide ehitamine,5,spring,1,1
+null,I340,Isd-k,Geoinfosüsteemide alused,3,spring,1,2
+null,I017,Isd-k,Ärisuhtlus ja suhtlemispsühholoogia,4,spring,1,2
+null,I023,Isd-k,Inglise keel,6,spring,1,2
+null,I207,Isd-k,Digitaalloogika ja -süsteemid,6,autumn,2,1
+null,I006,Isd-k,Ettevõtte majandusõpetus,4,autumn,2,1
+null,I237,Isd-k,Riistvaralähedane programmeerimine,4,autumn,2,1
+null,I243,Isd-k,Programmeerimine C# keeles,5,autumn,2,1
+null,I249,Isd-k,Side alused,4,autumn,2,1
+null,I332,Isd-k,Grid süsteem,3,autumn,2,2
+null,I238,Isd-k,Intellektuaalkapitali teooria,4,autumn,2,2
+null,I350,Isd-k,Projekt I,5,autumn,2,2
+null,I370,Isd-k,Windows-tööjaamade haldamine,3,autumn,2,2
+null,I378,Isd-k,Andmeturve ja krüptoloogia,5,autumn,2,2
+null,I379,Isd-k,Inglise ärikeel IT spetsialistidele,4,autumn,2,2
+null,I219,Isd-k,Tarkvaratehnika,3,spring,2,1
+null,I230,Isd-k,Infosüsteemide analüüs ja projekteerimine,5,spring,2,1
+null,I231,Isd-k,Algoritmid ja andmestruktuurid,5,spring,2,1
+null,I241,Isd-k,Sidevõrgud,5,spring,2,1
+null,I245,Isd-k,Andmebaasisüsteemide alused,5,spring,2,1
+null,I376,Isd-k,Veebirakenduste loomine ASP.NET abil,4,spring,2,2
+null,I389,Isd-k,Kasutajaliideste disain ja arendus,4,spring,2,2
+null,I105,Isd-k,Lineaaralgebra ja numbrilised meetodid,4,autumn,3,1
+null,I236,Isd-k,Reaalajasüsteemid I: projekteerimine ja programmeerimine,4,autumn,3,1
+null,I112,Isd-k,Loogika ja algoritmiteooria,4,autumn,3,1
+null,I251,Isd-k,Loogiline programmeerimine,2,autumn,3,1
+null,I252,Isd-k,Funktsionaalne programmeerimine,3,autumn,3,1
+null,I356,Isd-k,Loov probleemilahendus ja innovaatika,2,autumn,3,2
+null,I364,Isd-k,Sissejuhatus IMSi,3,autumn,3,2
+null,I390,Isd-k,IT süsteemide kasutatavus,5,autumn,3,2
+null,I393,Isd-k,Sissejuhatus Apple-i mobiilsetele tehnoloogiatele,3,autumn,3,2
+null,I397,Isd-k,Mobiilirakenduste arendamine Android platvormile,3,autumn,3,2
+null,I398,Isd-k,Automaattestimine,4,autumn,3,2
+null,I107,Isd-k,Algebra ja graafiteooria,4,spring,3,1
+null,I302,Isd-k,Infosüsteemide projektid ja nende juhtimine,5,spring,3,1
+null,I371,Isd-k,Võrgurakendused II: hajussüsteemide ehitamine,5,spring,3,1
+null,I319,Isd-k,Oracle: programmeerimiskeeled SQL ja PL/SQL,3,spring,3,2
+null,I348,Isd-k,Digitaalne heli- ja pilditöötlus,4,spring,3,2
+null,I365,Isd-k,Tarkvara testimise alused,3,spring,3,2
+null,I380,Isd-k,Projekt II,5,spring,3,2
+null,I391,Isd-k,Kasutajaliideste jätkukursus,6,spring,3,2
+null,I394,Isd-k,Microsofti mobiilirakenduste arendamine,3,spring,3,2
+null,I377,Isd-k,Veebirakendused Java baasil,5,autumn,4,1
+null,I419,Isd-k,Ettevõttepraktika,27,autumn,4,1
+null,I501,Isd-k,Diplomitöö,5,spring,4,1
