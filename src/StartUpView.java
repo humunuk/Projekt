@@ -45,7 +45,10 @@ public class StartUpView {
         chooseNewPlan.setPrefSize(200, 50);
 
         chooseNewPlan.setOnAction(event -> {
-                    new PlanningView();
+                    PlanningView planningView = new PlanningView();
+                    SaveModel saveModel = new SaveModel();
+                    SummaryModel summaryModel = new SummaryModel();
+                    PlanningController planningController = new PlanningController(planningView, summaryModel, saveModel);
                     stage.close();
                 }
         );

@@ -1,9 +1,6 @@
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.FileReader;
-
 /**
  * Created by skallari on 12.12.15.
  */

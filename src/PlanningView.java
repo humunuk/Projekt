@@ -1,5 +1,7 @@
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -15,14 +17,16 @@ import javafx.stage.Stage;
 public class PlanningView {
 
     private HBox mainBtnLoc;
-    private HBox semBtnLoc;
-    private VBox textLoc;
+    public HBox semBtnLoc;
+    public VBox textLoc;
     private Text intro;
     private Stage stage;
     private ToggleButton button;
     final ToggleGroup mainGroup = new ToggleGroup();
     final ToggleGroup semGroup = new ToggleGroup();
     final TableView summaryTable = new TableView();
+    public ComboBox<String> curriculumDropDown;
+    public ObservableList<String> dropDownSubjects;
 
     public PlanningView() {
 
@@ -46,8 +50,6 @@ public class PlanningView {
         //In case UTF-8 is not supported, ID is set to Summary for comparsion, but label text is set in estonian
         ToggleButton summary = this.getToggleButton("summary", mainGroup);
         summary.setText("Kokkuvõte");
-
-        addListenForToggle();
 
         mainBtnLoc.getChildren().addAll(firstYear, secondYear, thirdYear, fourthYear, summary);
         mainBtnLoc.setPadding(new Insets(10));
@@ -83,24 +85,44 @@ public class PlanningView {
         return button;
     }
 
-    private void getDetailView(Toggle button) {
+    public void getDetailView(Toggle button) {
 
         semBtnLoc = new HBox();
 
         ToggleButton mainGrpBtn = (ToggleButton) mainGroup.getSelectedToggle();
 
         if (mainGrpBtn.getId().equals("summary")) {
-           getSummary();
+            //Summary View
+            getSummary();
         } else {
-            // Semester specific buttons.
-            ToggleButton autumn = getToggleButton("Sügis", semGroup);
-            autumn.setSelected(true);
-            ToggleButton spring = getToggleButton("Kevad", semGroup);
-
-            semBtnLoc.getChildren().addAll(autumn, spring);
-
-            textLoc.getChildren().add(semBtnLoc);
+            // Semester specific buttons and view by year and semester.
+            getSemesterSpecificView();
         }
+    }
+
+    private void getSemesterSpecificView() {
+        ToggleButton autumn = getToggleButton("Sügis", semGroup);
+        ToggleButton spring = getToggleButton("Kevad", semGroup);
+
+        semBtnLoc.getChildren().addAll(autumn, spring);
+        textLoc.getChildren().add(semBtnLoc);
+        autumn.setSelected(true);
+    }
+
+    public void addListenForToggle(ChangeListener<Toggle> toggle) {
+        mainGroup.selectedToggleProperty().addListener(toggle);
+        semGroup.selectedToggleProperty().addListener(toggle);
+
+    }
+
+    public void removeDropDown() {
+        textLoc.getChildren().remove(curriculumDropDown);
+    }
+
+    public void getDropDown(Toggle selectedToggle) {
+        curriculumDropDown = new ComboBox(dropDownSubjects);
+        curriculumDropDown.setVisibleRowCount(15);
+        textLoc.getChildren().add(curriculumDropDown);
     }
 
     private void getSummary() {
@@ -122,31 +144,13 @@ public class PlanningView {
         textLoc.getChildren().add(summaryTable);
     }
 
-    private void removeSummaryPane() { textLoc.getChildren().remove(summaryTable); };
-
-    //Remove and switch semester specific buttons
-    private void removeDetailView() {
-        textLoc.getChildren().remove(semBtnLoc);
+    public void removeSummaryPane() {
+        textLoc.getChildren().remove(summaryTable);
     }
 
-    private void addListenForToggle() {
-        mainGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> observable, Toggle deactivated, Toggle activated) {
-                if (activated == null) {
-                    removeDetailView();
-                    removeSummaryPane();
-                } else {
-                    if (textLoc.getChildren().contains(summaryTable)) {
-                        removeSummaryPane();
-                    }
-                    if (textLoc.getChildren().contains(semBtnLoc)) {
-                        removeDetailView();
-                    }
-                    getDetailView(mainGroup.getSelectedToggle());
-                }
-            }
-        });
+    //Remove and switch semester specific buttons
+    public void removeDetailView() {
+        textLoc.getChildren().remove(semBtnLoc);
     }
 
 }
