@@ -1,15 +1,19 @@
+import com.sun.javafx.scene.control.skin.TableViewSkinBase;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.MapValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.util.Map;
 
 /**
  * Created by skallari on 12.12.15.
@@ -22,11 +26,19 @@ public class PlanningView {
     private Text intro;
     private Stage stage;
     private ToggleButton button;
+    private SplitPane mainScene;
+    private AnchorPane buttons;
+    public VBox subjectList;
     final ToggleGroup mainGroup = new ToggleGroup();
     final ToggleGroup semGroup = new ToggleGroup();
     final TableView summaryTable = new TableView();
-    public ComboBox<String> curriculumDropDown;
-    public ObservableList<String> dropDownSubjects;
+    final TableView subjectTable = new TableView();
+    public String subjectMapKey = "subject";
+    public String yearMapKey = "year";
+    public String eapMapKey = "eap";
+    public String typeMapKey = "type";
+    public ObservableList<Map> subjectTableData = FXCollections.observableArrayList();
+
 
     public PlanningView() {
 
@@ -34,11 +46,14 @@ public class PlanningView {
         stage = new Stage();
 
         //Setup default layout
+        mainScene = new SplitPane();
+        buttons = new AnchorPane();
+        subjectList = new VBox();
         textLoc = new VBox();
         mainBtnLoc = new HBox();
 
         //Set up scene for new window
-        Scene scene = new Scene(textLoc, 800, 600);
+        Scene scene = new Scene(mainScene, 1024, 768);
 
         // Main buttons to choose year/summary
         //Few hours from sunday -> managed to switch Button to ToggleButton - that is awesome
@@ -61,6 +76,9 @@ public class PlanningView {
         //Adds css stylesheet to layout
         textLoc.getStylesheets().add(getClass().getResource("main.css").toExternalForm());
 
+        buttons.getChildren().add(textLoc);
+
+        mainScene.getItems().addAll(subjectList, buttons);
         stage.setScene(scene);
         stage.show();
 
@@ -101,12 +119,13 @@ public class PlanningView {
     }
 
     private void getSemesterSpecificView() {
-        ToggleButton autumn = getToggleButton("Sügis", semGroup);
-        ToggleButton spring = getToggleButton("Kevad", semGroup);
+        ToggleButton autumn = getToggleButton("autumn", semGroup);
+        autumn.setText("Sügis");
+        ToggleButton spring = getToggleButton("spring", semGroup);
+        spring.setText("Kevad");
 
         semBtnLoc.getChildren().addAll(autumn, spring);
         textLoc.getChildren().add(semBtnLoc);
-        autumn.setSelected(true);
     }
 
     public void addListenForToggle(ChangeListener<Toggle> toggle) {
@@ -115,14 +134,27 @@ public class PlanningView {
 
     }
 
-    public void removeDropDown() {
-        textLoc.getChildren().remove(curriculumDropDown);
+    public void removeSubjectList() {
+        subjectList.getChildren().remove(subjectTable);
     }
 
-    public void getDropDown(Toggle selectedToggle) {
-        curriculumDropDown = new ComboBox(dropDownSubjects);
-        curriculumDropDown.setVisibleRowCount(15);
-        textLoc.getChildren().add(curriculumDropDown);
+    public void getSubjectList(Toggle selectedToggle) {
+
+        TableColumn<Map, String> subjectColumn = new TableColumn("Nimi");
+        subjectColumn.setCellValueFactory(new MapValueFactory(subjectMapKey));
+        subjectColumn.setPrefWidth(200);
+        TableColumn<Map, String> eapColumn = new TableColumn("EAP");
+        eapColumn.setCellValueFactory(new MapValueFactory(eapMapKey));
+        TableColumn<Map, String> yearColumn = new TableColumn("Aasta");
+        yearColumn.setCellValueFactory(new MapValueFactory(yearMapKey));
+        TableColumn<Map, String> typeColumn = new TableColumn("Tüüp");
+        typeColumn.setCellValueFactory(new MapValueFactory(typeMapKey));
+
+        subjectTable.setEditable(false);
+        subjectTable.getSelectionModel().setCellSelectionEnabled(true);
+        subjectTable.getColumns().setAll(subjectColumn, eapColumn, yearColumn, typeColumn);
+        subjectTable.setPrefHeight(768);
+        subjectList.getChildren().add(subjectTable);
     }
 
     private void getSummary() {

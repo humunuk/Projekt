@@ -1,10 +1,10 @@
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
+
+import java.util.Map;
 
 /**
  * Created by humunuk on 12/20/15.
@@ -31,45 +31,42 @@ public class PlanningController {
 
         @Override
         public void changed(ObservableValue<? extends Toggle> observable, Toggle deactivated, Toggle activated) {
-            boolean isMainGroup = observable.getValue().getToggleGroup().equals(planningView.mainGroup);
 
-            if (isMainGroup) {
-                if (activated == null) {
-                    planningView.removeDetailView();
+            if (activated == null) {
+                planningView.removeDetailView();
+                planningView.removeSummaryPane();
+                planningView.removeSubjectList();
+                return;
+            }
+
+            if (observable.getValue().getToggleGroup().equals(planningView.mainGroup)) {
+                if (planningView.textLoc.getChildren().contains(planningView.summaryTable)) {
                     planningView.removeSummaryPane();
-                    planningView.removeDropDown();
-                } else {
-                    if (planningView.textLoc.getChildren().contains(planningView.summaryTable)) {
-                        planningView.removeSummaryPane();
-                    }
-                    if (planningView.textLoc.getChildren().contains(planningView.semBtnLoc)) {
-                        planningView.removeDetailView();
-                    }
-                    if (planningView.textLoc.getChildren().contains(planningView.curriculumDropDown)) {
-                        planningView.removeDropDown();
-                    }
-                    planningView.getDetailView(planningView.mainGroup.getSelectedToggle());
                 }
+                if (planningView.textLoc.getChildren().contains(planningView.semBtnLoc)) {
+                    planningView.removeDetailView();
+                }
+                if (planningView.subjectList.getChildren().contains(planningView.subjectTable)) {
+                    planningView.removeSubjectList();
+                }
+                planningView.getDetailView(planningView.mainGroup.getSelectedToggle());
             } else {
-                if (activated == null) {
-                    planningView.removeDropDown();
-                } else {
-                    if (planningView.textLoc.getChildren().contains(planningView.curriculumDropDown)) {
-                        planningView.removeDropDown();
-                    }
-                    setDropDownSubjects(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle());
-                    planningView.getDropDown(planningView.semGroup.getSelectedToggle());
+                if (planningView.subjectList.getChildren().contains(planningView.subjectTable)) {
+                    planningView.removeSubjectList();
                 }
+                setDropDownSubjects(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle(), planningView.subjectTableData);
+                planningView.getSubjectList(planningView.semGroup.getSelectedToggle());
             }
         }
     }
 
-    private void setDropDownSubjects(Toggle semToggle, Toggle yearToggle) {
+    private void setDropDownSubjects(Toggle semToggle, Toggle yearToggle, ObservableList<Map> subjectTableData) {
 
         ToggleButton semester = (ToggleButton) semToggle;
         ToggleButton year = (ToggleButton) yearToggle;
 
-        planningView.dropDownSubjects = summaryModel.fetchSubjectsBySemester(semester, year);;
+        planningView.subjectTable.getColumns().clear();
+        planningView.subjectTable.getItems().setAll(summaryModel.fetchSubjectsBySemester(semester, year, planningView.subjectMapKey, planningView.yearMapKey, planningView.eapMapKey, planningView.typeMapKey, subjectTableData));
 
     }
 
