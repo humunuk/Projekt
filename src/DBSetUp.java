@@ -29,7 +29,7 @@ public class DBSetUp {
             connection.setAutoCommit(false);
             statement = connection.createStatement();
             statement.executeUpdate("create table if not exists subjects (id integer primary key asc, code string, curriculum string, subject string, eap integer, semester string, year integer, mandatory integer)");
-            statement.executeUpdate("create table if not exists plans (id integer primary key asc, name string, subject_id integer, foreign key (subject_id) references subjects(id))");
+            statement.executeUpdate("create table if not exists plans (id integer primary key asc, name string, subject_id integer, year integer, vota integer, foreign key (subject_id) references subjects(id))");
             try {
                 CSVReader reader = new CSVReader(new FileReader(curriculumPath));
                 try {

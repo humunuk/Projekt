@@ -1,4 +1,3 @@
-import com.sun.javafx.scene.control.skin.TableViewSkinBase;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,6 +12,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -22,6 +22,7 @@ public class PlanningView {
 
     private HBox mainBtnLoc;
     public HBox semBtnLoc;
+    public VBox semDetail;
     public VBox textLoc;
     private Text intro;
     private Stage stage;
@@ -37,6 +38,7 @@ public class PlanningView {
     public String yearMapKey = "year";
     public String eapMapKey = "eap";
     public String typeMapKey = "type";
+    public String idMapKey = "id";
     public ObservableList<Map> subjectTableData = FXCollections.observableArrayList();
 
 
@@ -51,6 +53,7 @@ public class PlanningView {
         subjectList = new VBox();
         textLoc = new VBox();
         mainBtnLoc = new HBox();
+        semDetail = new VBox();
 
         //Set up scene for new window
         Scene scene = new Scene(mainScene, 1024, 768);
@@ -150,11 +153,34 @@ public class PlanningView {
         TableColumn<Map, String> typeColumn = new TableColumn("Tüüp");
         typeColumn.setCellValueFactory(new MapValueFactory(typeMapKey));
 
+        addSubjectToPlan();
+
         subjectTable.setEditable(false);
         subjectTable.getSelectionModel().setCellSelectionEnabled(true);
         subjectTable.getColumns().setAll(subjectColumn, eapColumn, yearColumn, typeColumn);
         subjectTable.setPrefHeight(768);
         subjectList.getChildren().add(subjectTable);
+    }
+
+    private void addSubjectToPlan() {
+        subjectTable.setRowFactory( tv -> {
+           TableRow row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    HashMap rowData = (HashMap) row.getItem();
+                    HBox mingiJebla = new HBox();
+                    Label label = new Label(rowData.get(subjectMapKey).toString());
+                    label.setId(rowData.get(idMapKey).toString());
+                    mingiJebla.getChildren().add(label);
+                    semDetail.getChildren().add(mingiJebla);
+                    if (textLoc.getChildren().contains(semDetail)) {
+                        return;
+                    }
+                    textLoc.getChildren().add(semDetail);
+                }
+            });
+            return row;
+        });
     }
 
     private void getSummary() {
@@ -170,7 +196,6 @@ public class PlanningView {
         summaryTable.setEditable(false);
 
         summaryTable.getColumns().clear();
-
         summaryTable.getColumns().addAll(firstColumn, secondColumn, firstYearColumn, secondYearColumn, thirdYearColumn, fourthYearColumn, summaryColumn);
 
         textLoc.getChildren().add(summaryTable);
@@ -185,4 +210,6 @@ public class PlanningView {
         textLoc.getChildren().remove(semBtnLoc);
     }
 
+    //Remove semester specific details
+    public void removeSemDetail() { textLoc.getChildren().remove(semDetail); }
 }

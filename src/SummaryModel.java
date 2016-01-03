@@ -30,12 +30,12 @@ public class SummaryModel {
     }
 
 
-    public ObservableList<Map> fetchSubjectsBySemester(ToggleButton semester, ToggleButton year, String subjectMapKey, String yearMapKey, String eapMapKey, String typeMapKey, ObservableList<Map> subjectTableData) {
+    public ObservableList<Map> fetchSubjectsBySemester(ToggleButton semester, ToggleButton year, String subjectMapKey, String yearMapKey, String eapMapKey, String typeMapKey, String idMapKey, ObservableList<Map> subjectTableData) {
 
         //Clear old data when new button is pushed
         subjectTableData.clear();
         try {
-            prep = conn.prepareStatement("SELECT subject, eap, year, mandatory FROM subjects  where semester = ? ORDER BY (year = ?) DESC");
+            prep = conn.prepareStatement("SELECT id, subject, eap, year, mandatory FROM subjects  where semester = ? ORDER BY (year = ?) DESC");
             prep.setString(1, semester.getId());
             prep.setInt(2, Integer.parseInt(year.getId()));
             ResultSet results = prep.executeQuery();
@@ -49,6 +49,7 @@ public class SummaryModel {
                 } else {
                     tableRow.put(typeMapKey, "Valikaine");
                 }
+                tableRow.put(idMapKey, results.getString("id"));
                 subjectTableData.add(tableRow);
             }
         } catch (SQLException e) {

@@ -36,6 +36,7 @@ public class PlanningController {
                 planningView.removeDetailView();
                 planningView.removeSummaryPane();
                 planningView.removeSubjectList();
+                planningView.removeSemDetail();
                 return;
             }
 
@@ -49,10 +50,16 @@ public class PlanningController {
                 if (planningView.subjectList.getChildren().contains(planningView.subjectTable)) {
                     planningView.removeSubjectList();
                 }
+                if (planningView.textLoc.getChildren().contains(planningView.semDetail)) {
+                    planningView.removeSemDetail();
+                }
                 planningView.getDetailView(planningView.mainGroup.getSelectedToggle());
             } else {
                 if (planningView.subjectList.getChildren().contains(planningView.subjectTable)) {
                     planningView.removeSubjectList();
+                }
+                if (planningView.textLoc.getChildren().contains(planningView.semDetail)) {
+                    planningView.removeSemDetail();
                 }
                 setDropDownSubjects(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle(), planningView.subjectTableData);
                 planningView.getSubjectList(planningView.semGroup.getSelectedToggle());
@@ -65,8 +72,7 @@ public class PlanningController {
         ToggleButton semester = (ToggleButton) semToggle;
         ToggleButton year = (ToggleButton) yearToggle;
 
-        planningView.subjectTable.getColumns().clear();
-        planningView.subjectTable.getItems().setAll(summaryModel.fetchSubjectsBySemester(semester, year, planningView.subjectMapKey, planningView.yearMapKey, planningView.eapMapKey, planningView.typeMapKey, subjectTableData));
+        planningView.subjectTable.getItems().setAll(summaryModel.fetchSubjectsBySemester(semester, year, planningView.subjectMapKey, planningView.yearMapKey, planningView.eapMapKey, planningView.typeMapKey, planningView.idMapKey, subjectTableData));
 
     }
 
