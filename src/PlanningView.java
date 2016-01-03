@@ -173,10 +173,6 @@ public class PlanningView {
                     label.setId(rowData.get(idMapKey).toString());
                     mingiJebla.getChildren().add(label);
                     semDetail.getChildren().add(mingiJebla);
-                    if (textLoc.getChildren().contains(semDetail)) {
-                        return;
-                    }
-                    textLoc.getChildren().add(semDetail);
                 }
             });
             return row;
@@ -212,4 +208,6 @@ public class PlanningView {
 
     //Remove semester specific details
     public void removeSemDetail() { textLoc.getChildren().remove(semDetail); }
+
+    public void getPlanningList() { textLoc.getChildren().add(semDetail); }
 }

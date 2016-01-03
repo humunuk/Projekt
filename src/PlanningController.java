@@ -63,6 +63,7 @@ public class PlanningController {
                 }
                 setDropDownSubjects(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle(), planningView.subjectTableData);
                 planningView.getSubjectList(planningView.semGroup.getSelectedToggle());
+                planningView.getPlanningList();
             }
         }
     }
