@@ -5,6 +5,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -15,18 +16,20 @@ import javafx.stage.Stage;
 public class InputNewPlanModal {
 
     private VBox modalBox;
-    private Label intro;
+    public Label intro;
     private TextField planNameField;
     private HBox btnPlacement;
     private Button okBtn;
     private Button cancelBtn;
-    private Stage modal;
+    public Stage modal;
+    public Stage parent;
 
     InputNewPlanModal(Stage stage) {
         setupStage(stage);
     }
 
     private void setupStage(Stage stage) {
+        parent = stage;
         modal = new Stage();
         modal.initModality(Modality.APPLICATION_MODAL);
         modal.initOwner(stage);
@@ -54,10 +57,12 @@ public class InputNewPlanModal {
         okBtn.setPadding(new Insets(15));
         okBtn.setDefaultButton(true);
         okBtn.setOnAction(event -> {
-            if (planNameField.getText() != null && !planNameField.getText().isEmpty()) {
-                System.out.println(planNameField.getText());
+            if (planNameField.getText() != null && !planNameField.getText().trim().isEmpty()) {
+                new InputNewPlanModalController(planNameField.getText(), this);
             } else {
-                intro.setText("Midagi läks valesti");
+                intro.setText("Tühjad väljad ei ole lubatud");
+                intro.setFont(new Font(15));
+                intro.setTextFill(Color.RED);
             }
         });
         cancelBtn = new Button("Tühista");

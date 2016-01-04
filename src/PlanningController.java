@@ -18,11 +18,13 @@ public class PlanningController {
     private PlanningView planningView;
     private SummaryModel summaryModel;
     private SaveModel saveModel;
+    private Plan plan;
 
-    public PlanningController(PlanningView planningView, SummaryModel summaryModel, SaveModel saveModel) {
+    public PlanningController(PlanningView planningView, SummaryModel summaryModel, SaveModel saveModel, Plan plan) {
         this.planningView = planningView;
         this.summaryModel = summaryModel;
         this.saveModel = saveModel;
+        this.plan = plan;
 
         this.planningView.addListenForToggle(new ToggleListener());
     }

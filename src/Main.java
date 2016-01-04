@@ -12,7 +12,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        new StartUpView(primaryStage);
+        new StartUpController(new SummaryModel(), new StartUpView(primaryStage));
         String curriculumName = "Isd-k";
         String curriculumPath = "curriculums/oppekava-isdk.csv";
         new DBSetUp(curriculumName, curriculumPath);

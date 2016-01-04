@@ -4,19 +4,25 @@
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.util.List;
+import java.util.Optional;
 
 
 public class StartUpView {
 
     private VBox buttonPlacement;
     private Scene scene;
-    private Button chooseNewPlan;
-    private Button chooseOldPlan;
+    public Button chooseNewPlan;
+    public Button chooseOldPlan;
     private String title = "Alusta planeerimist";
-    private Stage stage;
+    public Stage stage;
+    public Plan plan;
 
 
     public StartUpView(Stage primaryStage) {
@@ -43,18 +49,6 @@ public class StartUpView {
         Button chooseNewPlan = new Button("Loo uus plaan");
         chooseNewPlan.setPrefSize(200, 50);
 
-        chooseNewPlan.setOnAction(event -> {
-                    //Add a pop-up to ask for a plan name, do not allow duplicate plan names
-
-                    new InputNewPlanModal(stage);
-//                        PlanningView planningView = new PlanningView();
-//                        SaveModel saveModel = new SaveModel();
-//                        SummaryModel summaryModel = new SummaryModel();
-//                        new PlanningController(planningView, summaryModel, saveModel);
-//                        stage.close();
-                }
-        );
-
         return chooseNewPlan;
 
     }
@@ -63,11 +57,28 @@ public class StartUpView {
         Button chooseOldPlan = new Button("Leia vana plaan");
         chooseOldPlan.setPrefSize(200, 50);
 
-        chooseOldPlan.setOnAction(event -> {
-            //Pop to display list of plan names, when chosen planning controller gets initialized with plan name
-        });
-
         return chooseOldPlan;
     }
 
+    public void getChooseOldPlanDialog(List<String> plans) {
+
+        ChoiceDialog<String> oldPlanDialog = new ChoiceDialog<>(null, plans);
+        oldPlanDialog.setTitle("Missugust plaani soovid mudida?");
+        oldPlanDialog.setHeaderText("Vali plaan");
+        oldPlanDialog.setContentText("Vali plaan: ");
+
+        Optional<String> result = oldPlanDialog.showAndWait();
+
+        if (result.isPresent()) {
+            plan = new Plan(result.get());
+        }
+    }
+
+    public void getWarningNoPlansInDb() {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Ei ole ühtegi plaani andmebaasis");
+        alert.setHeaderText("Ühtegi plaani ei ole andmebaasis, loo ennem mõni");
+
+        alert.showAndWait();
+    }
 }
