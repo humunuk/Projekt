@@ -1,4 +1,8 @@
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleButton;
+
 import java.sql.*;
+import java.util.HashMap;
 
 /**
  * Created by humunuk on 12/20/15.
@@ -22,9 +26,7 @@ public class SaveModel {
     }
 
     public boolean checkForPlanOrAddNew(Plan plan) {
-        if (conn == null) {
             initConnection();
-        }
         try {
             prep = conn.prepareStatement("SELECT name FROM plans WHERE name = ?");
             prep.setString(1, plan.getPlanName());
@@ -52,6 +54,41 @@ public class SaveModel {
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
             }
+        }
+    }
+
+    private int getPlanId(Plan plan) {
+        initConnection();
+        try {
+            prep = conn.prepareStatement("SELECT id FROM plans where name = ?");
+            prep.setString(1, plan.getPlanName());
+            results = prep.executeQuery();
+            while (results.next()) {
+                return results.getInt("id");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            closeConnections();
+        }
+        return 0;
+    }
+
+    public void addSubjectToPlan(Plan plan, Toggle year, Object subjectId) {
+        ToggleButton yearId = (ToggleButton) year;
+        int planId = getPlanId(plan);
+        initConnection();
+        try {
+            prep = conn.prepareStatement("INSERT INTO plan_subjects VALUES (?,?,?,?,?)");
+            prep.setInt(2, planId);
+            prep.setObject(3, subjectId);
+            prep.setObject(4, yearId.getId());
+            prep.setObject(5, 0);
+            prep.execute();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            closeConnections();
         }
     }
 }

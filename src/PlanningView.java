@@ -1,17 +1,22 @@
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
+import javax.sql.rowset.RowSetFactory;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,13 +39,16 @@ public class PlanningView {
     final ToggleGroup semGroup = new ToggleGroup();
     final TableView summaryTable = new TableView();
     final TableView subjectTable = new TableView();
+    final TableView planTable = new TableView();
     public String subjectMapKey = "subject";
     public String yearMapKey = "year";
     public String eapMapKey = "eap";
     public String typeMapKey = "type";
     public String idMapKey = "id";
+    public String cbMapKey = "checkbox";
+    public String deleteMapKey = "delete";
     public ObservableList<Map> subjectTableData = FXCollections.observableArrayList();
-
+    public ObservableList<Map> planTableData = FXCollections.observableArrayList();
 
     public PlanningView() {
 
@@ -114,7 +122,7 @@ public class PlanningView {
 
         if (mainGrpBtn.getId().equals("summary")) {
             //Summary View
-            getSummary();
+            addSummaryPane();
         } else {
             // Semester specific buttons and view by year and semester.
             getSemesterSpecificView();
@@ -153,8 +161,6 @@ public class PlanningView {
         TableColumn<Map, String> typeColumn = new TableColumn("Tüüp");
         typeColumn.setCellValueFactory(new MapValueFactory(typeMapKey));
 
-        addSubjectToPlan();
-
         subjectTable.setEditable(false);
         subjectTable.getSelectionModel().setCellSelectionEnabled(true);
         subjectTable.getColumns().setAll(subjectColumn, eapColumn, yearColumn, typeColumn);
@@ -162,24 +168,7 @@ public class PlanningView {
         subjectList.getChildren().add(subjectTable);
     }
 
-    private void addSubjectToPlan() {
-        subjectTable.setRowFactory( tv -> {
-           TableRow row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    HashMap rowData = (HashMap) row.getItem();
-                    HBox mingiJebla = new HBox();
-                    Label label = new Label(rowData.get(subjectMapKey).toString());
-                    label.setId(rowData.get(idMapKey).toString());
-                    mingiJebla.getChildren().add(label);
-                    semDetail.getChildren().add(mingiJebla);
-                }
-            });
-            return row;
-        });
-    }
-
-    private void getSummary() {
+    private void addSummaryPane() {
 
         TableColumn firstColumn = new TableColumn();
         TableColumn secondColumn = new TableColumn();
@@ -197,6 +186,40 @@ public class PlanningView {
         textLoc.getChildren().add(summaryTable);
     }
 
+    public void addPlanTabel(Toggle semester, Toggle year) {
+
+        TableColumn nameColumn = new TableColumn("Nimi");
+        nameColumn.setCellValueFactory(new MapValueFactory(subjectMapKey));
+        nameColumn.setPrefWidth(300);
+        TableColumn eapColumn = new TableColumn("EAP");
+        eapColumn.setCellValueFactory(new MapValueFactory(eapMapKey));
+        TableColumn votaColumn = new TableColumn("VÕTA?");
+        votaColumn.setCellValueFactory(new MapValueFactory(cbMapKey));
+        votaColumn.setSortable(false);
+        TableColumn removeColumn = new TableColumn();
+        removeColumn.setCellValueFactory(new MapValueFactory(deleteMapKey));
+        removeColumn.setSortable(false);
+
+        planTable.setEditable(false);
+        planTable.getColumns().clear();
+        planTable.getColumns().addAll(nameColumn, eapColumn, votaColumn, removeColumn);
+
+        semDetail.getChildren().add(planTable);
+
+    }
+
+//    public Button addDelBtn() {
+//
+//        return deleteBtn;
+//    }
+//
+//    public CheckBox addVotaBtn() {
+//
+//        votaBtn.setOnAction(event -> System.out.println(votaBtn.getId()));
+//
+//        return votaBtn;
+//    }
+
     public void removeSummaryPane() {
         textLoc.getChildren().remove(summaryTable);
     }
@@ -207,7 +230,10 @@ public class PlanningView {
     }
 
     //Remove semester specific details
-    public void removeSemDetail() { textLoc.getChildren().remove(semDetail); }
+    public void removeSemDetail() {
+        textLoc.getChildren().remove(semDetail);
+        semDetail.getChildren().remove(planTable);
+    }
 
     public void getPlanningList() { textLoc.getChildren().add(semDetail); }
 }
