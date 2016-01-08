@@ -2,7 +2,6 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 
 import java.sql.*;
-import java.util.HashMap;
 
 /**
  * Created by humunuk on 12/20/15.

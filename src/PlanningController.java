@@ -2,21 +2,15 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
  * Created by humunuk on 12/20/15.
  */
 public class PlanningController {
-    //Saab infot StartUpViewst ja koostab selle põhjal PlanningView
-    //Saab infot PlanningViewst ja saadab DetailViewsse
-    //Tegelt vist peaks saatma controlleritesse?!
-    //Info mis saab: mis nupule vajutati (1, 2, 3, 4 või Kokkuvõte), sama info saadab edasi
 
     private PlanningView planningView;
     private SummaryModel summaryModel;
@@ -32,6 +26,18 @@ public class PlanningController {
         this.planningView.addListenForToggle(new ToggleListener());
         listenForNewSubject();
     }
+
+    public void updatePlanningDetailTable() {
+        planningView.removeSemDetail();
+        planningView.removeSummaries();
+        planningView.textLoc.getChildren().add(planningView.semDetail);
+        setPlanDetails(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle(), planningView.planTableData);
+        planningView.addPlanTabel(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle());
+        int[] summaries = summaryModel.fetchSummaries(plan, planningView.mainGroup.getSelectedToggle(), planningView.semGroup.getSelectedToggle());
+        planningView.addSummaries(summaries);
+    }
+
+    //Listens for togglegroups and buttons, reflects which one was pushed
 
     class ToggleListener implements ChangeListener<Toggle> {
 
@@ -72,20 +78,24 @@ public class PlanningController {
                 planningView.getPlanningList();
                 setPlanDetails(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle(), planningView.planTableData);
                 planningView.addPlanTabel(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle());
+                int[] summaries = summaryModel.fetchSummaries(plan, planningView.mainGroup.getSelectedToggle(), planningView.semGroup.getSelectedToggle());
+                planningView.addSummaries(summaries);
             }
         }
     }
 
+    //Sets plan details to view
     private void setPlanDetails(Toggle semToggle, Toggle yearToggle, ObservableList<Map> planTableData) {
         ToggleButton semester = (ToggleButton) semToggle;
         ToggleButton year = (ToggleButton) yearToggle;
 
-        Collection data = summaryModel.fetchPlanDetails(plan, semester, year, planTableData, planningView.subjectMapKey, planningView.eapMapKey, planningView.idMapKey);
+        Collection data = summaryModel.fetchPlanDetails(plan, semester, year, planTableData, planningView.subjectMapKey, planningView.eapMapKey, planningView.idMapKey, this);
 
         planningView.planTable.getItems().setAll(data);
 
     }
 
+    //Sets all subjects to view
     private void setDropDownSubjects(Toggle semToggle, Toggle yearToggle, ObservableList<Map> subjectTableData) {
 
         ToggleButton semester = (ToggleButton) semToggle;
@@ -95,18 +105,16 @@ public class PlanningController {
 
     }
 
+    //Adds new subject to plan db tabel, updates the tabel to reflect the change
     private void listenForNewSubject() {
         planningView.subjectTable.setRowFactory(tv -> {
             TableRow row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
-// Kui row celli peal klikitakse: * siis lisa antud asi andmebaasi ning viewsse
+                    // Kui row celli peal klikitakse: * siis lisa antud asi andmebaasi ning viewsse
                     HashMap rowData = (HashMap) row.getItem();
                     saveModel.addSubjectToPlan(plan, planningView.mainGroup.getSelectedToggle(), rowData.get(planningView.idMapKey));
-                    planningView.removeSemDetail();
-                    planningView.textLoc.getChildren().add(planningView.semDetail);
-                    setPlanDetails(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle(), planningView.planTableData);
-                    planningView.addPlanTabel(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle());
+                    updatePlanningDetailTable();
                 }
             });
             return row;

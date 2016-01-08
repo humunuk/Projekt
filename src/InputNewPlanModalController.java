@@ -1,7 +1,5 @@
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Stage;
-import javafx.stage.Window;
 
 /**
  * Created by humunuk on 1/3/16.

@@ -1,24 +1,20 @@
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
-import javax.sql.rowset.RowSetFactory;
-import java.util.HashMap;
+import java.lang.reflect.Array;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * Created by skallari on 12.12.15.
@@ -49,6 +45,10 @@ public class PlanningView {
     public String deleteMapKey = "delete";
     public ObservableList<Map> subjectTableData = FXCollections.observableArrayList();
     public ObservableList<Map> planTableData = FXCollections.observableArrayList();
+    public Label mandatorySum = new Label();
+    public Label electiveSum = new Label();
+    public Label votaSum = new Label();
+    public Label sumLabel = new Label();
 
     public PlanningView() {
 
@@ -208,17 +208,23 @@ public class PlanningView {
 
     }
 
-//    public Button addDelBtn() {
-//
-//        return deleteBtn;
-//    }
-//
-//    public CheckBox addVotaBtn() {
-//
-//        votaBtn.setOnAction(event -> System.out.println(votaBtn.getId()));
-//
-//        return votaBtn;
-//    }
+    public void addSummaries(int[] summaries) {
+
+        if (semDetail.getChildren().contains(mandatorySum)) {
+            removeSummaries();
+        }
+        mandatorySum.setText("Kohustuslikud: "+summaries[0]);
+        electiveSum.setText("Valikained: "+summaries[1]);
+        votaSum.setText("VÕTA: "+summaries[2]);
+        sumLabel.setText("Kokku: "+ IntStream.of(summaries).sum());
+
+        semDetail.getChildren().addAll(mandatorySum, electiveSum, votaSum, sumLabel);
+
+    }
+
+    public void removeSummaries() {
+        semDetail.getChildren().removeAll(mandatorySum, electiveSum, votaSum, sumLabel);
+    }
 
     public void removeSummaryPane() {
         textLoc.getChildren().remove(summaryTable);
@@ -235,5 +241,7 @@ public class PlanningView {
         semDetail.getChildren().remove(planTable);
     }
 
-    public void getPlanningList() { textLoc.getChildren().add(semDetail); }
+    public void getPlanningList() {
+        textLoc.getChildren().add(semDetail);
+    }
 }

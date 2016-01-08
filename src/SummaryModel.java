@@ -1,7 +1,8 @@
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 
+import java.lang.reflect.*;
+import java.lang.reflect.Array;
 import java.sql.*;
 import java.util.*;
 
@@ -13,6 +14,7 @@ public class SummaryModel {
     private Connection conn;
     private PreparedStatement prep;
     private ResultSet results;
+    private int[] summaries = new int[3];
 
     public SummaryModel() {
         initConnection();
@@ -24,6 +26,23 @@ public class SummaryModel {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private int getPlanId(Plan plan) {
+        initConnection();
+        try {
+            prep = conn.prepareStatement("SELECT id FROM plans where name = ?");
+            prep.setString(1, plan.getPlanName());
+            results = prep.executeQuery();
+            while (results.next()) {
+                return results.getInt("id");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            closeConnection();
+        }
+        return 0;
     }
 
 
@@ -69,6 +88,7 @@ public class SummaryModel {
 
     public List<String> fetchAllPlans() {
 
+        initConnection();
         List<String> oldPlans = new ArrayList<>();
         try {
             prep = conn.prepareStatement("SELECT name FROM plans;");
@@ -78,32 +98,55 @@ public class SummaryModel {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } finally {
+            closeConnection();
         }
 
         return oldPlans;
     }
 
-    public Collection fetchPlanDetails(Plan plan, ToggleButton semester, ToggleButton year, ObservableList<Map> planTableData, String subjectMapKey, String eapMapKey, String idMapKey) {
+    public Collection fetchPlanDetails(Plan plan, ToggleButton semester, ToggleButton year, ObservableList<Map> planTableData, String subjectMapKey, String eapMapKey, String idMapKey, PlanningController planningController) {
+
+        int planId = getPlanId(plan);
 
         initConnection();
+
         planTableData.clear();
 
         try {
-            prep = conn.prepareStatement("SELECT plan_subjects.id as pId, subjects.id as subId, subjects.subject, subjects.eap FROM plan_subjects JOIN subjects ON subjects.id = plan_subjects.subject_id WHERE subjects.semester = ? AND plan_subjects.year = ? GROUP BY subjects.id");
+            prep = conn.prepareStatement("SELECT plan_subjects.vota, plan_subjects.id as pid, subjects.id as subId, subjects.subject, subjects.eap FROM plan_subjects JOIN subjects ON subjects.id = plan_subjects.subject_id WHERE subjects.semester = ? AND plan_subjects.year = ? AND plan_id = ? GROUP BY subjects.id");
             prep.setObject(1, semester.getId());
             prep.setObject(2, year.getId());
+            prep.setObject(3, planId);
             results = prep.executeQuery();
 
             while (results.next()) {
                 String subId = results.getString("subId");
                 Button deleteBtn = new Button("Eemalda");
-                deleteBtn.setId(results.getString("pId"));
+                int votaRs = results.getInt("vota");
+                deleteBtn.setId(results.getString("subId"));
                 deleteBtn.setOnAction(event -> {
-                    removeSubjectFromPlan(year, subId);
-                    fetchPlanDetails(plan, semester, year, planTableData, subjectMapKey, eapMapKey, idMapKey);
+                    removeSubjectFromPlan(year, deleteBtn.getId(), plan);
+                    planningController.updatePlanningDetailTable();
                 });
                 CheckBox votaBtn = new CheckBox();
                 votaBtn.setId(results.getString("pid"));
+                votaBtn.setOnAction(event -> {
+                    if (votaBtn.isSelected()) {
+                        int vota = 1;
+                        updateVota(vota, year, votaBtn.getId());
+                        planningController.updatePlanningDetailTable();
+                    } else {
+                        int vota = 0;
+                        updateVota(vota, year, votaBtn.getId());
+                        planningController.updatePlanningDetailTable();
+                    }
+                });
+                if (votaRs == 1) {
+                    votaBtn.setSelected(true);
+                } else {
+                    votaBtn.setSelected(false);
+                }
                 Map tableRow = new HashMap<>();
                 tableRow.put(subjectMapKey, results.getString("subject"));
                 tableRow.put(eapMapKey, results.getString("eap"));
@@ -122,18 +165,81 @@ public class SummaryModel {
         return planTableData;
     }
 
-    private void removeSubjectFromPlan(ToggleButton year, String subId) {
-            initConnection();
+    private void updateVota(int vota, ToggleButton year, String id) {
+        initConnection();
         String yearId = year.getId();
         try {
-            prep = conn.prepareStatement("DELETE FROM plan_subjects WHERE year = ? AND subject_id = ?");
+            prep = conn.prepareStatement("UPDATE plan_subjects SET vota = ? WHERE id = ? AND year = ?");
+            prep.setInt(1, vota);
+            prep.setObject(2, id);
+            prep.setObject(3, yearId);
+            prep.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            closeConnection();
+        }
+    }
+
+    private void removeSubjectFromPlan(ToggleButton year, String subId, Plan plan) {
+
+        int planId = getPlanId(plan);
+
+        initConnection();
+        String yearId = year.getId();
+        try {
+            prep = conn.prepareStatement("DELETE FROM plan_subjects WHERE year = ? AND subject_id = ? AND plan_id = ?");
             prep.setObject(1, yearId);
             prep.setObject(2, subId);
+            prep.setObject(3, planId);
             prep.execute();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
             closeConnection();
         }
+    }
+
+    public int[] fetchSummaries(Plan plan, Toggle year, Toggle semester) {
+
+        ToggleButton yearBtn = (ToggleButton) year;
+        ToggleButton semBtn = (ToggleButton) semester;
+
+        int planId = getPlanId(plan);
+        int mandatoryTotal = 0;
+        int electiveTotal = 0;
+        int votaTotal = 0;
+
+        initConnection();
+
+        try {
+            prep = conn.prepareStatement("SELECT subjects.eap, subjects.mandatory, plan_subjects.vota  FROM  plan_subjects  JOIN subjects ON subjects.id = plan_subjects.subject_id WHERE plan_subjects.year = ? AND plan_id = ? AND subjects.semester = ? GROUP BY plan_subjects.subject_id");
+            prep.setObject(1, yearBtn.getId());
+            prep.setObject(2, planId);
+            prep.setObject(3, semBtn.getId());
+            results = prep.executeQuery();
+            while (results.next()) {
+                if (results.getInt("mandatory") == 1 && results.getInt("vota") == 0) {
+                    System.out.println(1);
+                    mandatoryTotal += results.getInt("eap");
+                } else if (results.getInt("mandatory") == 2 && results.getInt("vota") == 0) {
+                    System.out.println(2);
+                    electiveTotal += results.getInt("eap");
+                } else if (results.getInt("vota") == 1) {
+                    System.out.println(3);
+                    votaTotal += results.getInt("eap");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            closeConnection();
+        }
+
+        summaries[0] = mandatoryTotal;
+        summaries[1] = electiveTotal;
+        summaries[2] = votaTotal;
+
+        return summaries;
     }
 }
