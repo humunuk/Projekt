@@ -49,11 +49,12 @@ public class PlanningController {
                 planningView.removeSummaryPane();
                 planningView.removeSubjectList();
                 planningView.removeSemDetail();
+                planningView.removeTotals();
                 return;
             }
 
             if (observable.getValue().getToggleGroup().equals(planningView.mainGroup)) {
-                if (planningView.textLoc.getChildren().contains(planningView.summaryTable)) {
+                if (planningView.textLoc.getChildren().contains(planningView.summary)) {
                     planningView.removeSummaryPane();
                 }
                 if (planningView.textLoc.getChildren().contains(planningView.semBtnLoc)) {
@@ -65,7 +66,14 @@ public class PlanningController {
                 if (planningView.textLoc.getChildren().contains(planningView.semDetail)) {
                     planningView.removeSemDetail();
                 }
+                if (planningView.textLoc.getChildren().contains(planningView.totals)) {
+                    planningView.removeTotalChilds();
+                    planningView.removeTotals();
+                }
+                setSummaryData();
+                setTotalsData();
                 planningView.getDetailView(planningView.mainGroup.getSelectedToggle());
+
             } else {
                 if (planningView.subjectList.getChildren().contains(planningView.subjectTable)) {
                     planningView.removeSubjectList();
@@ -73,6 +81,11 @@ public class PlanningController {
                 if (planningView.textLoc.getChildren().contains(planningView.semDetail)) {
                     planningView.removeSemDetail();
                 }
+                if (planningView.textLoc.getChildren().contains(planningView.totals)) {
+                    planningView.removeTotalChilds();
+                    planningView.removeTotals();
+                }
+                //Populate view with data
                 setDropDownSubjects(planningView.semGroup.getSelectedToggle(), planningView.mainGroup.getSelectedToggle(), planningView.subjectTableData);
                 planningView.getSubjectList(planningView.semGroup.getSelectedToggle());
                 planningView.getPlanningList();
@@ -82,6 +95,39 @@ public class PlanningController {
                 planningView.addSummaries(summaries);
             }
         }
+    }
+
+    private void setTotalsData() {
+        int[] data = summaryModel.fetchTotalSummaries(plan);
+        planningView.addTotals(data);
+    }
+
+    private void setSummaryData() {
+        ListView<String> firstYearData = summaryModel.fetchAllSummaryDataByYear(plan, 1, planningView.firstSubjects);
+        ListView<String> secondYearData = summaryModel.fetchAllSummaryDataByYear(plan, 2, planningView.secondSubjects);
+        ListView<String> thirdYearData = summaryModel.fetchAllSummaryDataByYear(plan, 3, planningView.thirdSubjects);
+        ListView<String> fourthYearData = summaryModel.fetchAllSummaryDataByYear(plan, 4, planningView.fourthSubjects);
+
+        if (planningView.firstYear.getChildren().contains(firstYearData)) {
+            planningView.firstYear.getChildren().remove(firstYearData);
+        }
+
+        if (planningView.secondYear.getChildren().contains(secondYearData)) {
+            planningView.secondYear.getChildren().remove(secondYearData);
+        }
+
+        if (planningView.thirdYear.getChildren().contains(thirdYearData)) {
+            planningView.thirdYear.getChildren().remove(thirdYearData);
+        }
+
+        if (planningView.fourthYear.getChildren().contains(fourthYearData)) {
+            planningView.fourthYear.getChildren().remove(fourthYearData);
+        }
+
+        planningView.firstYear.getChildren().add(firstYearData);
+        planningView.secondYear.getChildren().add(secondYearData);
+        planningView.thirdYear.getChildren().add(thirdYearData);
+        planningView.fourthYear.getChildren().add(fourthYearData);
     }
 
     //Sets plan details to view

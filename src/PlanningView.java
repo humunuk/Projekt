@@ -25,10 +25,12 @@ public class PlanningView {
     public HBox semBtnLoc;
     public VBox semDetail;
     public VBox textLoc;
+    public HBox summary;
+    public VBox totals;
     private Text intro;
     private Stage stage;
     private ToggleButton button;
-    private SplitPane mainScene;
+    public SplitPane mainScene;
     private AnchorPane buttons;
     public VBox subjectList;
     final ToggleGroup mainGroup = new ToggleGroup();
@@ -45,10 +47,23 @@ public class PlanningView {
     public String deleteMapKey = "delete";
     public ObservableList<Map> subjectTableData = FXCollections.observableArrayList();
     public ObservableList<Map> planTableData = FXCollections.observableArrayList();
+    public ListView<String> firstSubjects = new ListView<>();
+    public ListView<String> secondSubjects = new ListView<>();
+    public ListView<String> thirdSubjects = new ListView<>();
+    public ListView<String> fourthSubjects = new ListView<>();
     public Label mandatorySum = new Label();
     public Label electiveSum = new Label();
     public Label votaSum = new Label();
     public Label sumLabel = new Label();
+    public Label mandatoryTotalSum = new Label();
+    public Label electiveTotalSum = new Label();
+    public Label votaTotalSum = new Label();
+    public Label sumTotalLabel = new Label();
+    public VBox firstYear = new VBox();
+    public VBox secondYear = new VBox();
+    public VBox thirdYear = new VBox();
+    public VBox fourthYear = new VBox();
+
 
     public PlanningView() {
 
@@ -62,6 +77,8 @@ public class PlanningView {
         textLoc = new VBox();
         mainBtnLoc = new HBox();
         semDetail = new VBox();
+        summary = new HBox();
+        totals = new VBox();
 
         //Set up scene for new window
         Scene scene = new Scene(mainScene, 1024, 768);
@@ -170,20 +187,18 @@ public class PlanningView {
 
     private void addSummaryPane() {
 
-        TableColumn firstColumn = new TableColumn();
-        TableColumn secondColumn = new TableColumn();
-        TableColumn firstYearColumn = new TableColumn("1. aasta");
-        TableColumn secondYearColumn = new TableColumn("2. aasta");
-        TableColumn thirdYearColumn = new TableColumn("3. aasta");
-        TableColumn fourthYearColumn = new TableColumn("4. aasta");
-        TableColumn summaryColumn = new TableColumn();
+        if (summary.getChildren().contains(firstYear)) {
+            summary.getChildren().removeAll(firstYear, secondYear, thirdYear, fourthYear);
+        }
 
-        summaryTable.setEditable(false);
+        summary.getChildren().addAll(firstYear, secondYear, thirdYear, fourthYear);
 
-        summaryTable.getColumns().clear();
-        summaryTable.getColumns().addAll(firstColumn, secondColumn, firstYearColumn, secondYearColumn, thirdYearColumn, fourthYearColumn, summaryColumn);
 
-        textLoc.getChildren().add(summaryTable);
+        textLoc.getChildren().add(summary);
+
+        totals.getChildren().addAll(mandatoryTotalSum, electiveTotalSum, votaTotalSum, sumTotalLabel);
+
+        textLoc.getChildren().add(totals);
     }
 
     public void addPlanTabel(Toggle semester, Toggle year) {
@@ -222,12 +237,36 @@ public class PlanningView {
 
     }
 
+    public void addTotals(int[] summaries) {
+
+        if (textLoc.getChildren().contains(totals)) {
+            removeTotals();
+        }
+
+        if (totals.getChildren().contains(mandatoryTotalSum)) {
+            removeTotalChilds();
+        }
+        mandatoryTotalSum.setText("Kohustuslikud: "+summaries[0]);
+        electiveTotalSum.setText("Valikained: "+summaries[1]);
+        votaTotalSum.setText("VÕTA: "+summaries[2]);
+        sumTotalLabel.setText("Kokku: "+ IntStream.of(summaries).sum());
+
+    }
+
+    public void removeTotals() {
+        textLoc.getChildren().remove(totals);
+    }
+
+    public void removeTotalChilds() {
+        totals.getChildren().removeAll(mandatoryTotalSum, electiveTotalSum, votaTotalSum, sumTotalLabel);
+    }
+
     public void removeSummaries() {
         semDetail.getChildren().removeAll(mandatorySum, electiveSum, votaSum, sumLabel);
     }
 
     public void removeSummaryPane() {
-        textLoc.getChildren().remove(summaryTable);
+        textLoc.getChildren().remove(summary);
     }
 
     //Remove and switch semester specific buttons

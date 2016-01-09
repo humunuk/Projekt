@@ -15,6 +15,7 @@ public class SummaryModel {
     private PreparedStatement prep;
     private ResultSet results;
     private int[] summaries = new int[3];
+    private int[] totals = new int[3];
 
     public SummaryModel() {
         initConnection();
@@ -48,7 +49,7 @@ public class SummaryModel {
 
     public ObservableList<Map> fetchSubjectsBySemester(ToggleButton semester, ToggleButton year, String subjectMapKey, String yearMapKey, String eapMapKey, String typeMapKey, String idMapKey, ObservableList<Map> subjectTableData) {
             initConnection();
-        //Clear old data when new button is pushed
+        //Clear old data when another button is pushed
         subjectTableData.clear();
         try {
             prep = conn.prepareStatement("SELECT id, subject, eap, year, mandatory FROM subjects  where semester = ? ORDER BY (year = ?) DESC");
@@ -114,7 +115,7 @@ public class SummaryModel {
         planTableData.clear();
 
         try {
-            prep = conn.prepareStatement("SELECT plan_subjects.vota, plan_subjects.id as pid, subjects.id as subId, subjects.subject, subjects.eap FROM plan_subjects JOIN subjects ON subjects.id = plan_subjects.subject_id WHERE subjects.semester = ? AND plan_subjects.year = ? AND plan_id = ? GROUP BY subjects.id");
+            prep = conn.prepareStatement("SELECT plan_subjects.vota, plan_subjects.id as pid, subjects.id as subId, subjects.subject, subjects.eap FROM plan_subjects JOIN subjects ON subjects.id = plan_subjects.subject_id WHERE subjects.semester = ? AND plan_subjects.year = ? AND plan_id = ?");
             prep.setObject(1, semester.getId());
             prep.setObject(2, year.getId());
             prep.setObject(3, planId);
@@ -213,20 +214,17 @@ public class SummaryModel {
         initConnection();
 
         try {
-            prep = conn.prepareStatement("SELECT subjects.eap, subjects.mandatory, plan_subjects.vota  FROM  plan_subjects  JOIN subjects ON subjects.id = plan_subjects.subject_id WHERE plan_subjects.year = ? AND plan_id = ? AND subjects.semester = ? GROUP BY plan_subjects.subject_id");
+            prep = conn.prepareStatement("SELECT subjects.eap, subjects.mandatory, plan_subjects.vota  FROM  plan_subjects  JOIN subjects ON subjects.id = plan_subjects.subject_id WHERE plan_subjects.year = ? AND plan_id = ? AND subjects.semester = ?");
             prep.setObject(1, yearBtn.getId());
             prep.setObject(2, planId);
             prep.setObject(3, semBtn.getId());
             results = prep.executeQuery();
             while (results.next()) {
                 if (results.getInt("mandatory") == 1 && results.getInt("vota") == 0) {
-                    System.out.println(1);
                     mandatoryTotal += results.getInt("eap");
                 } else if (results.getInt("mandatory") == 2 && results.getInt("vota") == 0) {
-                    System.out.println(2);
                     electiveTotal += results.getInt("eap");
                 } else if (results.getInt("vota") == 1) {
-                    System.out.println(3);
                     votaTotal += results.getInt("eap");
                 }
             }
@@ -241,5 +239,106 @@ public class SummaryModel {
         summaries[2] = votaTotal;
 
         return summaries;
+    }
+
+    public ListView<String> fetchAllSummaryDataByYear(Plan plan, int i, ListView<String> subjects) {
+
+        subjects.getItems().clear();
+        int planId = getPlanId(plan);
+
+        initConnection();
+
+        try {
+            prep = conn.prepareStatement("SELECT subjects.eap, subjects.subject, subjects.mandatory, subjects.semester, plan_subjects.year FROM subjects JOIN plan_subjects ON plan_subjects.subject_id = subjects.id WHERE plan_subjects.year = ? AND plan_id = ? ORDER BY plan_subjects.year ASC, semester ASC, mandatory ASC");
+            prep.setInt(1, i);
+            prep.setInt(2, planId);
+            results = prep.executeQuery();
+            while (results.next()) {
+                subjects.getItems().add(results.getString("subject"));
+            }
+            getTotals(i, subjects, planId);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            closeConnection();
+        }
+        return subjects;
+    }
+
+    private void getTotals(int i, ListView<String> subjects, int planId) {
+
+        initConnection();
+
+        int mandatoryTotal = 0;
+        int electiveTotal = 0;
+        int votaTotal = 0;
+        int totalTotal = 0;
+
+        try {
+            prep = conn.prepareStatement("SELECT subjects.eap, subjects.mandatory, plan_subjects.vota  FROM  plan_subjects  JOIN subjects ON subjects.id = plan_subjects.subject_id WHERE plan_subjects.year = ? AND plan_id = ?");
+            prep.setInt(1, i);
+            prep.setInt(2, planId);
+            results = prep.executeQuery();
+            while (results.next()) {
+                if (results.getInt("mandatory") == 1 && results.getInt("vota") == 0) {
+                    mandatoryTotal += results.getInt("eap");
+                } else if (results.getInt("mandatory") == 2 && results.getInt("vota") == 0) {
+                    electiveTotal += results.getInt("eap");
+                } else if (results.getInt("vota") == 1) {
+                    votaTotal += results.getInt("eap");
+                }
+                totalTotal += results.getInt("eap");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            closeConnection();
+        }
+        String mandatory = "Kohustuslikud: "+mandatoryTotal;
+        String elective = "Valikained: "+electiveTotal;
+        String vota = "VÕTA: "+votaTotal;
+        String total = "Kokku: "+totalTotal;
+
+        subjects.getItems().add("");
+        subjects.getItems().add(mandatory);
+        subjects.getItems().add(elective);
+        subjects.getItems().add(vota);
+        subjects.getItems().add(total);
+
+    }
+
+    public int[] fetchTotalSummaries(Plan plan) {
+
+        int planId = getPlanId(plan);
+        int mandatoryTotal = 0;
+        int electiveTotal = 0;
+        int votaTotal = 0;
+
+        initConnection();
+
+        try {
+            prep = conn.prepareStatement("SELECT subjects.eap, subjects.mandatory, plan_subjects.vota  FROM  plan_subjects  JOIN subjects ON subjects.id = plan_subjects.subject_id WHERE plan_id = ?");
+            prep.setObject(1, planId);
+            results = prep.executeQuery();
+            while (results.next()) {
+                if (results.getInt("mandatory") == 1 && results.getInt("vota") == 0) {
+                    mandatoryTotal += results.getInt("eap");
+                } else if (results.getInt("mandatory") == 2 && results.getInt("vota") == 0) {
+                    electiveTotal += results.getInt("eap");
+                } else if (results.getInt("vota") == 1) {
+                    votaTotal += results.getInt("eap");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            closeConnection();
+        }
+
+        totals[0] = mandatoryTotal;
+        totals[1] = electiveTotal;
+        totals[2] = votaTotal;
+
+        return totals;
     }
 }
